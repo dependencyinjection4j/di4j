@@ -29,8 +29,14 @@ public class RootServiceProvider extends ServiceProvider {
 
         Service<T> service = registry.getRegistration(type);
         if(service == null) return null;
+
         if(service.isScoped()) throw new CannotUseScopedServiceInRootScopeException("The service " + type.getName() + " is a scoped service and cannot be used in the root scope");
+
         if(service.isTransient()) return registry.getService(type, this, context);
+
+        // If the service is an injection only service, create a new instance
+        if(service.isInjectionOnly()) return registry.getService(type, this, context);
+
         if(service.isSingleton()) {
             Object instance = registry.getService(type, this, context);
             if(instance == null) {
@@ -40,7 +46,7 @@ public class RootServiceProvider extends ServiceProvider {
             return type.cast(instance);
         }
 
-        throw new InvalidServiceRegistrationException("The service " + type.getName() + " did not have a valid registration, must be either a singleton, transient or scoped service.");
+        throw new InvalidServiceRegistrationException("The service " + type.getName() + " did not have a valid registration, must be either a singleton, transient, scoped or injection only service.");
     }
 
     @Override

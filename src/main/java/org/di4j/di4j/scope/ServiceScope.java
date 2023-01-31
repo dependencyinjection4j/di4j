@@ -37,8 +37,11 @@ public class ServiceScope extends ServiceProvider {
         // If the service is a transient service, create a new instance
         if(service.isTransient()) return registry.getService(type, this, context);
 
-        // If the service is a scoped service, create a scoped instance and save it. If the
-        if(service.isScoped() || service.isInjectionOnly()) {
+        // If the service is an injection only service, create a new instance
+        if(service.isInjectionOnly()) return registry.getService(type, this, context);
+
+        // If the service is a scoped service, create a scoped instance and save it.
+        if(service.isScoped()) {
             Object instance = registry.getService(type, this, context);
             if(instance == null) {
                 return null;
