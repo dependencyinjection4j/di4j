@@ -17,10 +17,14 @@ public class ServiceRegistry {
     }
 
     public <T> T getService(Class<T> type, ServiceProvider serviceProvider) {
+        return getService(type, serviceProvider, null);
+    }
+
+    public <T> T getService(Class<T> type, ServiceProvider serviceProvider, Class<?> context) {
         Service<T> service = getRegistration(type);
         if(service == null) return null;
         try {
-            var obj = service.getInstance(serviceProvider);
+            var obj = service.getInstance(serviceProvider, context);
             if(type.isAssignableFrom(obj.getClass())) {
                 return type.cast(obj);
             }

@@ -3,12 +3,14 @@ package org.di4j.di4j.registry;
 import org.di4j.di4j.ServiceProvider;
 import org.di4j.di4j.annotations.ServiceProviderConstructor;
 import org.di4j.di4j.exceptions.ClassNotAssignableException;
+import org.di4j.di4j.exceptions.InjectionOnlyFactoryCannotBeUsedForNonInjectionServicesException;
 import org.di4j.di4j.exceptions.InvalidConstructorCountException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class Service<T> {
@@ -17,6 +19,7 @@ public class Service<T> {
     private boolean isSingleton;
     private boolean isTransient;
     private boolean isScoped;
+    private boolean isInjectionOnly;
 
     private Class<T> clazz;
     private Class<? extends T> implementationClazz;
@@ -24,6 +27,7 @@ public class Service<T> {
     private T singletonObject;
 
     private Function<ServiceProvider, ? extends T> factory;
+    private BiFunction<ServiceProvider, Class<?>, ? extends T> injectionOnlyFactory;
 
     private List<? extends Class<?>> requiredServices;
 
@@ -43,6 +47,12 @@ public class Service<T> {
         this.factory = factory;
     }
 
+    public Service(Class<T> clazz, BiFunction<ServiceProvider, Class<?>, ? extends T> factory) {
+        this.clazz = clazz;
+        this.injectionOnlyFactory = factory;
+        isInjectionOnly = true;
+    }
+
     public Service(Class<T> clazz, Class<? extends T> implementation) {
         this.clazz = clazz;
         this.implementationClazz = implementation;
@@ -60,11 +70,17 @@ public class Service<T> {
         constructor = serviceProviderConstructor.isEmpty() ? constructors[0] : serviceProviderConstructor.get(0);
     }
 
-    public T getInstance(ServiceProvider collection) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+    public T getInstance(ServiceProvider collection, Class<?> injectInto) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         if(isSingleton) {
             return singletonObject;
         } else if(factory != null) {
             return factory.apply(collection);
+        } else if(injectionOnlyFactory != null) {
+            if(injectInto != null) {
+
+            } else {
+                throw new InjectionOnlyFactoryCannotBeUsedForNonInjectionServicesException(clazz.getName());
+            }
         }
         return createInstanceFromClazz(collection);
     }
@@ -77,7 +93,7 @@ public class Service<T> {
         var paramTypes = constructor.getParameterTypes();
 
         for (int i = 0; i < paramOrder.length; i++) {
-            paramOrder[i] = collection.getRequiredService(paramTypes[i]);
+            paramOrder[i] = collection.getService(paramTypes[i], clazz);
         }
 
         var instance = constructor.newInstance(paramOrder);
@@ -107,6 +123,14 @@ public class Service<T> {
 
     public void setScoped(boolean scoped) {
         isScoped = scoped;
+    }
+
+    public boolean isInjectionOnly() {
+        return isInjectionOnly;
+    }
+
+    public void setInjectionOnly(boolean injectionOnly) {
+        isInjectionOnly = injectionOnly;
     }
 
     public List<? extends Class<?>> getRequiredServices() {

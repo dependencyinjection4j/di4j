@@ -6,6 +6,7 @@ import org.di4j.di4j.scope.ServiceScope;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class ServiceCollectionBuilder {
@@ -59,6 +60,12 @@ public class ServiceCollectionBuilder {
     }
     //#endregion
 
+    //#region Transient
+    public <T> void addInjectionOnly(Class<T> serviceClass, BiFunction<ServiceProvider, Class<?>, T> factory) {
+        services.put(serviceClass, new InjectionOnlyService(serviceClass, factory));
+    }
+    //#endregion
+
     public RootServiceProvider build() {
         var serviceMap = new HashMap<Class<?>, Service<?>>();
 
@@ -79,68 +86,79 @@ public class ServiceCollectionBuilder {
     }
 
     private <T> Service<T> constructService(IService typeService) {
-        Service<?> service = null;
+        Service<T> service = null;
         switch (typeService.getType()) {
             case SCOPED -> {
-                var scopedService = (ScopedService) typeService;
+                var scopedService = (ScopedService<T>) typeService;
                 if (scopedService.implementationClazz != null) {
-                    service = new Service<T>((Class<T>) scopedService.clazz, (T) scopedService.implementationClazz);
+                    service = new Service<>(scopedService.clazz, scopedService.implementationClazz);
                 } else if(scopedService.factory != null) {
-                    service = new Service<T>((Class<T>) scopedService.clazz, (T) scopedService.factory);
+                    service = new Service<>(scopedService.clazz, scopedService.factory);
                 } else {
-                    service = new Service<T>((Class<T>) scopedService.clazz);
+                    service = new Service<>(scopedService.clazz);
                 }
                 service.setScoped(true);
             }
             case SINGLETON -> {
-                var singletonService = (SingletonService) typeService;
+                var singletonService = (SingletonService<T>) typeService;
 
                 if (singletonService.instance != null) {
-                    service = new Service<T>((Class<T>) singletonService.clazz, (T) singletonService.instance);
+                    service = new Service<>(singletonService.clazz, singletonService.instance);
                 } else if (singletonService.implementationClazz != null) {
-                    service = new Service<T>((Class<T>) singletonService.clazz, (T) singletonService.implementationClazz);
+                    service = new Service<>(singletonService.clazz, singletonService.implementationClazz);
                 } else if(singletonService.factory != null) {
-                    service = new Service<T>((Class<T>) singletonService.clazz, (T) singletonService.factory);
+                    service = new Service<>(singletonService.clazz, singletonService.factory);
                 } else {
-                    service = new Service<T>((Class<T>) singletonService.clazz);
+                    service = new Service<>(singletonService.clazz);
                 }
                 service.setSingleton(true);
             }
             case TRANSIENT-> {
-                var transientService = (ScopedService) typeService;
+                var transientService = (ScopedService<T>) typeService;
                 if (transientService.implementationClazz != null) {
-                    service = new Service<T>((Class<T>) transientService.clazz, (T) transientService.implementationClazz);
+                    service = new Service<>(transientService.clazz, transientService.implementationClazz);
                 } else if(transientService.factory != null) {
-                    service = new Service<T>((Class<T>) transientService.clazz, (T) transientService.factory);
+                    service = new Service<>(transientService.clazz, transientService.factory);
                 } else {
-                    service = new Service<T>((Class<T>) transientService.clazz);
+                    service = new Service<>(transientService.clazz);
                 }
                 service.setTransient(true);
             }
+            case INJECTION_ONLY -> {
+                var injectionOnlyService = (InjectionOnlyService<T>) typeService;
+                service = new Service<>(injectionOnlyService.clazz, injectionOnlyService.factory);
+            }
         }
 
-        return (Service<T>) service;
+        return service;
     }
 
 
     private interface IService { ServiceType getType(); }
-    private record ScopedService(Class<?> clazz, Class<?> implementationClazz, Function<ServiceProvider, Object> factory) implements IService {
+    private record ScopedService<T>(Class<T> clazz, Class<? extends T> implementationClazz, Function<ServiceProvider, T> factory) implements IService {
         @Override
         public ServiceType getType() {
             return ServiceType.SCOPED;
         }
     }
-    private record SingletonService(Class<?> clazz, Object instance, Class<?> implementationClazz, Function<ServiceProvider, Object> factory) implements IService {
+    private record SingletonService<T>(Class<T> clazz, T instance, Class<? extends T> implementationClazz, Function<ServiceProvider, T> factory) implements IService {
         @Override
         public ServiceType getType() {
             return ServiceType.SINGLETON;
         }
     }
-    private record TransientService(Class<?> clazz, Class<?> implementationClazz, Function<ServiceProvider, Object> factory) implements IService {
+    private record TransientService<T>(Class<T> clazz, Class<? extends T> implementationClazz, Function<ServiceProvider, T> factory) implements IService {
         @Override
         public ServiceType getType() {
             return ServiceType.TRANSIENT;
         }
     }
-    private enum ServiceType { SCOPED, SINGLETON, TRANSIENT }
+    private record InjectionOnlyService<T>(Class<T> clazz, BiFunction<ServiceProvider, Class<?>, ? extends T> factory) implements IService {
+        @Override
+        public ServiceType getType() {
+            return ServiceType.INJECTION_ONLY;
+        }
+    }
+
+    private enum ServiceType { SCOPED, SINGLETON, TRANSIENT, INJECTION_ONLY }
 }

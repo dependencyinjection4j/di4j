@@ -21,7 +21,7 @@ public class RootServiceProvider extends ServiceProvider {
     }
 
     @Override
-    public <T> T getService(Class<T> type) {
+    public <T> T getService(Class<T> type, Class<?> context) {
         // Check to see if we already have an instance for this
         if(singletonServices.containsKey(type)) {
             return type.cast(singletonServices.get(type));
@@ -30,9 +30,9 @@ public class RootServiceProvider extends ServiceProvider {
         Service<T> service = registry.getRegistration(type);
         if(service == null) return null;
         if(service.isScoped()) throw new CannotUseScopedServiceInRootScopeException("The service " + type.getName() + " is a scoped service and cannot be used in the root scope");
-        if(service.isTransient()) return registry.getService(type, this);
+        if(service.isTransient()) return registry.getService(type, this, context);
         if(service.isSingleton()) {
-            Object instance = registry.getService(type, this);
+            Object instance = registry.getService(type, this, context);
             if(instance == null) {
                 return null;
             }

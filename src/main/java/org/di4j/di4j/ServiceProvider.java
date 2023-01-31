@@ -11,7 +11,17 @@ public abstract class ServiceProvider {
      * @return The instance for the service or null if the service was found or null if the service has not been registered
      * @param <T> The type of the service to lookup
      */
-    public abstract <T> T getService(Class<T> type);
+    public <T> T getService(Class<T> type) {
+        return getService(type, null);
+    }
+
+    /**
+     * Gets a service or returns null if the service was not found
+     * @param type The type of the service to get an instance for
+     * @return The instance for the service or null if the service was found or null if the service has not been registered
+     * @param <T> The type of the service to lookup
+     */
+    public abstract <T> T getService(Class<T> type, Class<?> context);
 
     /**
      * Gets a new service scope that can be used to get scoped services
