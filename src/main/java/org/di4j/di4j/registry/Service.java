@@ -71,7 +71,7 @@ public class Service<T> {
     }
 
     public T getInstance(ServiceProvider collection, Class<?> injectInto) throws InvocationTargetException, InstantiationException, IllegalAccessException {
-        if(isSingleton) {
+        if(isSingleton && singletonObject != null) {
             return singletonObject;
         } else if(factory != null) {
             return factory.apply(collection);
