@@ -14,55 +14,66 @@ public class ServiceCollectionBuilder {
     private final Map<Class<?>, IService> services = new HashMap<>();
 
     //#region Scoped
-    public <T> void addScoped(Class<T> serviceClass) {
+    public <T> ServiceCollectionBuilder addScoped(Class<T> serviceClass) {
         services.put(serviceClass, new ScopedService(serviceClass, null, null));
+        return this;
     }
 
-    public <T> void addScoped(Class<T> serviceClass, Class<? extends T> implementationClass) {
+    public <T> ServiceCollectionBuilder addScoped(Class<T> serviceClass, Class<? extends T> implementationClass) {
         services.put(serviceClass, new ScopedService(serviceClass, implementationClass, null));
+        return this;
     }
 
-    public <T> void addScoped(Class<T> serviceClass, Function<ServiceProvider, Object> factory) {
+    public <T> ServiceCollectionBuilder addScoped(Class<T> serviceClass, Function<ServiceProvider, Object> factory) {
         services.put(serviceClass, new ScopedService(serviceClass, null, factory));
+        return this;
     }
     //#endregion
 
 
     //#region Singleton
-    public <T> void addSingleton(Class<T> serviceClass) {
+    public <T> ServiceCollectionBuilder addSingleton(Class<T> serviceClass) {
         services.put(serviceClass, new SingletonService(serviceClass, null, null, null));
+        return this;
     }
 
-    public <T> void addSingleton(Class<T> serviceClass, Class<? extends T> implementationClass) {
+    public <T> ServiceCollectionBuilder addSingleton(Class<T> serviceClass, Class<? extends T> implementationClass) {
         services.put(serviceClass, new SingletonService(serviceClass, null, implementationClass, null));
+        return this;
     }
 
-    public <T> void addSingleton(Class<T> serviceClass, Function<ServiceProvider, Object> factory) {
+    public <T> ServiceCollectionBuilder addSingleton(Class<T> serviceClass, Function<ServiceProvider, Object> factory) {
         services.put(serviceClass, new SingletonService(serviceClass, null, null, factory));
+        return this;
     }
 
-    public <T> void addSingleton(Class<T> serviceClass, T serviceInstance) {
+    public <T> ServiceCollectionBuilder addSingleton(Class<T> serviceClass, T serviceInstance) {
         services.put(serviceClass, new SingletonService(serviceClass, serviceInstance, null, null));
+        return this;
     }
     //#endregion
 
     //#region Transient
-    public <T> void addTransient(Class<T> serviceClass) {
+    public <T> ServiceCollectionBuilder addTransient(Class<T> serviceClass) {
         services.put(serviceClass, new TransientService(serviceClass, null, null));
+        return this;
     }
 
-    public <T> void addTransient(Class<T> serviceClass, Class<? extends T> implementationClass) {
+    public <T> ServiceCollectionBuilder addTransient(Class<T> serviceClass, Class<? extends T> implementationClass) {
         services.put(serviceClass, new TransientService(serviceClass, implementationClass, null));
+        return this;
     }
 
-    public <T> void addTransient(Class<T> serviceClass, Function<ServiceProvider, Object> factory) {
+    public <T> ServiceCollectionBuilder addTransient(Class<T> serviceClass, Function<ServiceProvider, Object> factory) {
         services.put(serviceClass, new TransientService(serviceClass, null, factory));
+        return this;
     }
     //#endregion
 
     //#region Transient
-    public <T> void addInjectionOnly(Class<T> serviceClass, BiFunction<ServiceProvider, Class<?>, T> factory) {
+    public <T> ServiceCollectionBuilder addInjectionOnly(Class<T> serviceClass, BiFunction<ServiceProvider, Class<?>, T> factory) {
         services.put(serviceClass, new InjectionOnlyService(serviceClass, factory));
+        return this;
     }
     //#endregion
 
