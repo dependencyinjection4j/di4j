@@ -77,7 +77,7 @@ public class Service<T> {
             return factory.apply(collection);
         } else if(injectionOnlyFactory != null) {
             if(injectInto != null) {
-
+                return injectionOnlyFactory.apply(collection, injectInto);
             } else {
                 throw new InjectionOnlyFactoryCannotBeUsedForNonInjectionServicesException(clazz.getName());
             }
