@@ -5,6 +5,7 @@ import org.di4j.di4j.annotations.ServiceProviderConstructor;
 import org.di4j.di4j.exceptions.ClassNotAssignableException;
 import org.di4j.di4j.exceptions.InjectionOnlyFactoryCannotBeUsedForNonInjectionServicesException;
 import org.di4j.di4j.exceptions.InvalidConstructorCountException;
+import org.di4j.di4j.exceptions.MissingServiceException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -94,6 +95,9 @@ public class Service<T> {
 
         for (int i = 0; i < paramOrder.length; i++) {
             paramOrder[i] = collection.getService(paramTypes[i], clazz);
+            if(paramOrder[i] == null) {
+                throw new MissingServiceException("The service " + clazz.getName() + " could not get a instance of the service " + paramTypes[i].getName());
+            }
         }
 
         var instance = constructor.newInstance(paramOrder);
