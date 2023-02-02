@@ -28,7 +28,8 @@ public class ServiceRegistry {
             if(obj != null && type.isAssignableFrom(obj.getClass())) {
                 return type.cast(obj);
             }
-            throw new FailedToInstantiateServiceException("Could not get a service instance for the service " + type.getName() + ". The type " + obj.getClass() + " is not assignable to " + type.getName() + ".");
+            String typeName = obj != null ? obj.getClass().toString() : "<NULL>";
+            throw new FailedToInstantiateServiceException("Could not get a service instance for the service " + type.getName() + ". The type " + typeName + " is not assignable to " + type.getName() + ".");
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new FailedToInstantiateServiceException("The service " + type.getName() + " could not be instantiated");
         }
