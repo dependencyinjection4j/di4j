@@ -4,4 +4,8 @@ public class FailedToInstantiateServiceException extends DI4JException{
     public FailedToInstantiateServiceException(String message) {
         super(message);
     }
+
+    public FailedToInstantiateServiceException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
