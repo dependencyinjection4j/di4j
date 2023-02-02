@@ -125,7 +125,7 @@ public class ServiceCollectionBuilder {
                 service.setSingleton(true);
             }
             case TRANSIENT-> {
-                var transientService = (ScopedService<T>) typeService;
+                var transientService = (TransientService<T>) typeService;
                 if (transientService.implementationClazz != null) {
                     service = new Service<>(transientService.clazz, transientService.implementationClazz);
                 } else if(transientService.factory != null) {
