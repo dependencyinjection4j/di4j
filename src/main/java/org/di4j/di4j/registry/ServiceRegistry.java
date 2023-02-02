@@ -25,7 +25,7 @@ public class ServiceRegistry {
         if(service == null) return null;
         try {
             var obj = service.getInstance(serviceProvider, context);
-            if(type.isAssignableFrom(obj.getClass())) {
+            if(obj != null && type.isAssignableFrom(obj.getClass())) {
                 return type.cast(obj);
             }
             throw new FailedToInstantiateServiceException("Could not get a service instance for the service " + type.getName() + ". The type " + obj.getClass() + " is not assignable to " + type.getName() + ".");
