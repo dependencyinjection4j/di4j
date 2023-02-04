@@ -2,5 +2,5 @@ jdk:
   - openjdk9
 before_install:
   - sdk list java
-  - sdk install java 16.0.1.1-open
-  - sdk use java 16.0.1.1-open
+  - sdk install java 19.0.2-open
+  - sdk use java 19.0.2-open
