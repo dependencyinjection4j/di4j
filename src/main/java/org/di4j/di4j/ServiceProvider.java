@@ -1,5 +1,11 @@
 package org.di4j.di4j;
 
+import org.di4j.di4j.exceptions.CannotUseScopedServiceInRootScopeException;
+import org.di4j.di4j.exceptions.ClassNotAssignableException;
+import org.di4j.di4j.exceptions.FailedToInstantiateServiceException;
+import org.di4j.di4j.exceptions.InjectionOnlyFactoryCannotBeUsedForNonInjectionServicesException;
+import org.di4j.di4j.exceptions.InvalidServiceRegistrationException;
+import org.di4j.di4j.exceptions.MissingServiceException;
 import org.di4j.di4j.exceptions.ServiceNotFoundException;
 import org.di4j.di4j.scope.ServiceScope;
 
@@ -16,10 +22,18 @@ public abstract class ServiceProvider {
     }
 
     /**
-     * Gets a service or returns null if the service was not found
-     * @param type The type of the service to get an instance for
-     * @return The instance for the service or null if the service was found or null if the service has not been registered
-     * @param <T> The type of the service to lookup
+     * Retrieves a service instance of the given type from the root scope using the given context.
+     *
+     * @param type the type of the service to retrieve
+     * @param context the context to use to retrieve the service instance
+     * @param <T> the type of the service to retrieve
+     * @return the service instance of the given type, or null if the service is not registered
+     * @throws FailedToInstantiateServiceException if the service instance could not be instantiated
+     * @throws InvalidServiceRegistrationException if the service registration is invalid
+     * @throws CannotUseScopedServiceInRootScopeException if the service is a scoped service and cannot be used in the root scope
+     * @throws MissingServiceException if a service instance cannot be retrieved, this is thrown when fetching child services
+     * @throws ClassNotAssignableException if the created instance for a service cannot be assigned to the expected class type
+     * @throws InjectionOnlyFactoryCannotBeUsedForNonInjectionServicesException if an injection-only factory is used without an injection target
      */
     public abstract <T> T getService(Class<T> type, Class<?> context);
 
