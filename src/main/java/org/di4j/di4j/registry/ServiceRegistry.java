@@ -33,7 +33,6 @@ public class ServiceRegistry {
      *
      * @param type the type of the service to retrieve
      * @param serviceProvider the service provider to use to retrieve the service instance
-     * @param context the context to use to retrieve the service instance
      * @param <T> the type of the service to retrieve
      * @return the service instance of the given type, or null if the service is not registered
      * @throws FailedToInstantiateServiceException if the service instance could not be instantiated
@@ -50,6 +49,7 @@ public class ServiceRegistry {
      *
      * @param type the type of the service to retrieve
      * @param serviceProvider the service provider to use to retrieve the service instance
+     * @param context the context to use to retrieve the service instance
      * @param <T> the type of the service to retrieve
      * @return the service instance of the given type, or null if the service is not registered
      * @throws FailedToInstantiateServiceException if the service instance could not be instantiated

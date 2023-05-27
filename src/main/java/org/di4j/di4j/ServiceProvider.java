@@ -9,6 +9,11 @@ import org.di4j.di4j.exceptions.MissingServiceException;
 import org.di4j.di4j.exceptions.ServiceNotFoundException;
 import org.di4j.di4j.scope.ServiceScope;
 
+/**
+ * The service provider class represents a service provider for a service hierarchy.<br>
+ * It contains a map of singleton services and provides methods to retrieve a service instance from the root scope.<br>
+ * The service provider is responsible for creating service instances and injecting dependencies into them.<br>
+ */
 public abstract class ServiceProvider {
 
     /**
