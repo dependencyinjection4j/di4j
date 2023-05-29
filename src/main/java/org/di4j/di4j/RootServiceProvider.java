@@ -86,4 +86,13 @@ public class RootServiceProvider extends ServiceProvider {
         return new ServiceScope(this, registry);
     }
 
+    /**
+     * Retrieves the service registry of the root service provider, this is the registry that the root service provider uses to retrieve services.<br>
+     * This is useful if you want to access the registry directly. For example, to get the registration details of a service.
+     * @return The service registry of the root service provider
+     */
+    public ServiceRegistry getRegistry() {
+        return registry;
+    }
+
 }

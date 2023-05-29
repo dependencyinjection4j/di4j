@@ -7,7 +7,9 @@ import org.di4j.di4j.exceptions.InjectionOnlyFactoryCannotBeUsedForNonInjectionS
 import org.di4j.di4j.exceptions.MissingServiceException;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -83,6 +85,41 @@ public class ServiceRegistry {
         return (Service<T>) services.get(type);
     }
 
+    /**
+     * Computes the order in which the services should be loaded. This is done by computing a topological sort of the
+     * services. The order is computed by sorting the services by their dependencies. It will only work on services
+     * that have a constructor (i.e. are not factories or injection-only services).
+     * @return The list of services in the order they should be loaded
+     */
+    public List<Service<?>> getLoadOrder() {
+        Map<Service<?>, Integer> services = new HashMap<>();
+        for(Service<?> service : this.services.values()) {
+            if(service.hasConstructor())
+                services.put(service, 0);
+        }
 
+        for (int i = 0; i < 500; i++) {
+            var changesInThisIteration = false;
+            // Loop through all services, and set the integer in the map of the child service to the current level + 1
+            for (Map.Entry<Service<?>, Integer> entry : services.entrySet()) {
+                var oldValue = entry.getValue();
+                for (Class<?> dependency : entry.getKey().getRequiredServices()) {
+                    Service<?> childService = getRegistration(dependency);
+                    if (childService != null) {
+                        var newValue = Math.min(oldValue, services.get(childService) - 1);
+                        if(oldValue != newValue) {
+                            changesInThisIteration = true;
+                            oldValue = newValue;
+                            services.put(entry.getKey(), newValue);
+                        }
+                    }
+                }
+            }
+            if(!changesInThisIteration) break;
+        }
+
+        // Sort the services by their level
+        return services.keySet().stream().sorted((a,b) -> services.get(b) - services.get(a)).toList();
+    }
 
 }

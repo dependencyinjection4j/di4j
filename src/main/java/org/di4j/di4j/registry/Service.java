@@ -184,6 +184,7 @@ public class Service<T> {
     }
 
 
+
     /**
      * Returns whether the service is a singleton.<br>
      * A singleton service is created only once and the same instance is returned every time it is requested.<br>
@@ -272,5 +273,22 @@ public class Service<T> {
      */
     public List<? extends Class<?>> getRequiredServices() {
         return Arrays.stream(constructor.getParameterTypes()).toList();
+    }
+
+    /**
+     * Checks whether the service has a constructor or not.<br>
+     * This is used for checking the service's type internally.<br>
+     * @return true if the service has a constructor, false otherwise
+     */
+    public boolean hasConstructor() {
+        return constructor != null;
+    }
+
+    /**
+     * Get service type
+     * @return Service type
+     */
+    public Class<T> getType() {
+        return this.clazz;
     }
 }
